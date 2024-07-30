@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photographer Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .photographer-details {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .photographer-details img {
+            max-width: 200px;
+        }
+        .photos img {
+            max-width: 100px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Photographer Details</h1>
+        <div id="photographer-details" class="photographer-details">
+            <!-- Photographer details will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Get photographer ID from URL parameters
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                id: params.get('id')
+            };
+        }
+
+        async function fetchPhotographerDetails(id) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/photographers/${id}/`);
+                const photographer = await response.json();
+                const detailsDiv = document.getElementById('photographer-details');
+
+                // Display photographer details
+                detailsDiv.innerHTML = `
+                    <h2>${photographer.name}</h2>
+                    ${photographer.profile_picture ? `<img src="${photographer.profile_picture}" alt="${photographer.name}">` : ''}
+                    <p><strong>Price:</strong> ${photographer.session_price}</p>
+                    <p><strong>Rating:</strong> ${photographer.rating}</p>
+                    <p><strong>Bio:</strong> ${photographer.bio}</p>
+                    <h3>Photos:</h3>
+                    <div class="photos">
+                        ${photographer.photos.map(photo => `<img src="${photo.image}" alt="${photo.description}" title="${photo.description}">`).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error fetching photographer details:', error);
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            const { id } = getQueryParams();
+            if (id) {
+                fetchPhotographerDetails(id);
+            } else {
+                document.getElementById('photographer-details').innerHTML = '<p>No photographer ID provided.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photographers List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .photographer-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .photographer-card:hover {
+            background-color: #f0f0f0;
+        }
+        .photographer-card img {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+        .photographer-card div {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Photographers List</h1>
+        <div id="photographer-list">
+            <!-- Photographer list will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchPhotographers() {
+            console.log('Fetching photographers...');
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/photographers/');
+                const photographers = await response.json();
+                console.log('Photographers data:', photographers);
+
+                const photographerList = document.getElementById('photographer-list');
+                if (!photographerList) {
+                    console.error('Element #photographer-list not found');
+                    return;
+                }
+
+                photographers.forEach(photographer => {
+                    const photographerDiv = document.createElement('div');
+                    photographerDiv.classList.add('photographer-card');
+
+                    const profilePicture = photographer.profile_picture || 'path/to/default-image.jpg';
+
+                    photographerDiv.innerHTML = `
+                        <img src="${profilePicture}" alt="${photographer.name}">
+                        <div>
+                            <h3>${photographer.name}</h3>
+                            <p><strong>Price:</strong> ${photographer.session_price}</p>
+                            <p><strong>Rating:</strong> ${photographer.rating}</p>
+                        </div>
+                    `;
+                    photographerDiv.addEventListener('click', () => {
+                        window.location.href = `details.html?id=${photographer.id}`;
+                    });
+                    photographerList.appendChild(photographerDiv);
+                });
+            } catch (error) {
+                console.error('Error fetching photographers:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchPhotographers);
+    </script>
+</body>
+</html>
